@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIDY - Modern Parallax Website Replica</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <style>
+        /* BASE STYLES */
+        :root {
+            /* Matched to the light background and dark text in the video */
+            --light-bg: #f5f5f5; 
+            --dark-text: #111;
+            --primary-color: #6a00ff; /* Purple accent color */
+        }
+
+        body {
+            background-color: var(--light-bg); 
+            color: var(--dark-text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            line-height: 1.5;
+            min-height: 200vh;
+        }
+
+        /* NAVIGATION BAR - Top Nav (Matches video layout) */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent white */
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+        .navbar a {
+            color: var(--dark-text);
+            text-decoration: none;
+            margin-left: 25px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .logo { font-weight: 800; font-size: 1.2rem; }
+        .btn-primary { 
+            background-color: var(--primary-color); 
+            color: white; 
+            padding: 8px 15px; 
+            border-radius: 5px; 
+            font-weight: 600;
+        }
+
+        /* HERO SECTION */
+        .hero-section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start; /* Aligned left, matching video */
+            position: relative;
+            padding: 0 100px;
+            text-align: left;
+        }
+        .hero-content { z-index: 10; margin-top: 100px; }
+        .header-title { 
+            font-size: 4rem; 
+            margin-bottom: 5px; 
+            font-weight: 800; 
+            letter-spacing: -1px;
+        }
+        .header-subtitle { 
+            font-size: 1.4rem; 
+            margin-bottom: 40px; 
+            color: #555; 
+            font-weight: 400;
+        }
+        .btn-get-started {
+            padding: 15px 40px;
+            font-size: 1rem;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+
+        /* DYNAMIC WAVE PLACEHOLDER (Use an actual 3D library like Three.js to achieve the exact effect) */
+        .wave-container {
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            height: 500px;
+            overflow: hidden;
+            z-index: 5;
+        }
+        .dynamic-wave-img {
+            /* Placeholder to represent the wave's visual identity */
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff0077, #7700ff, #00ffff, #ff0077);
+            background-size: 400% 400%;
+            filter: blur(15px) opacity(0.5);
+            animation: gradient-wave 15s ease infinite;
+        }
+        @keyframes gradient-wave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* CARD REVEAL SECTION SETUP */
+        .sticky-container {
+            /* Defines the total scroll duration for the card animation */
+            height: 450vh; 
+            position: relative;
+            z-index: 20;
+            background-color: var(--light-bg);
+            padding-top: 100px;
+        }
+
+        .cards-wrapper {
+            /* This element sticks to the viewport top while scrolling */
+            position: sticky; 
+            top: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px; /* Perspective for 3D rotation */
+            transform-style: preserve-3d;
+        }
+
+        /* STICKY TEXT (Matches video text) */
+        .text-overlay {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            z-index: 50;
+            text-transform: uppercase;
+            padding: 20px 0;
+        }
+        .text-top { top: 100px; }
+        .text-bottom { bottom: 100px; }
+        
+        /* CARD STYLING (GLASSMORPHISM) */
+        .card {
+            width: 380px;
+            height: 250px;
+            position: absolute;
+            /* Glassmorphism Styling */
+            background: rgba(255, 255, 255, 0.4); 
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            
+            /* Initial state for GSAP animation */
+            opacity: 0;
+            transform: scale(0.6) translateY(200px) rotateX(25deg) rotateY(-10deg);
+        }
+        
+        /* Card Specific Styling (to match the colors) */
+        .card-1 { border-left: 5px solid #ff69b4; } /* Pink */
+        .card-2 { border-left: 5px solid #6495ed; } /* Blue */
+        .card-3 { border-left: 5px solid #3cb371; } /* Green */
+        .card-4 { border-left: 5px solid #ffa500; } /* Orange */
+        
+        .card-header { font-weight: 700; font-size: 1.4rem; }
+        .card-body { font-size: 1rem; color: #444; }
+        .card-footer { font-size: 0.8rem; color: #888; margin-top: 10px;}
+
+        /* FINAL SECTION */
+        .final-content {
+            height: 100vh;
+            padding: 100px 50px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">TIDY</div>
+        <div>
+            <a href="#">PRODUCT</a>
+            <a href="#">SOLUTIONS</a>
+            <a href="#">PRICING</a>
+            <a href="#">DASHBOARD</a>
+            <a href="#" class="btn-primary">GET IN TOUCH</a>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <div class="wave-container">
+            <div class="dynamic-wave-img"></div>
+        </div>
+        <div class="hero-content">
+            <p style="font-size: 0.8rem; font-weight: 600;">TIDY 1.0</p>
+            <h1 class="header-title">YOUR TEAM'S COMMAND CENTER <br> FOR TASKS & PRODUCTIVITY.</h1>
+            <a href="#" class="btn-primary btn-get-started">START YOUR JOURNEY TODAY</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="sticky-container">
+            <div class="text-overlay text-top" data-text-index="0">Designer's dream, Developer's nightmare</div>
+
+            <div class="cards-wrapper">
+                <div class="card card-1" data-card-index="0" style="z-index: 4;">
+                    <div class="card-header">Dashboard View</div>
+                    <div class="card-body">A centralized, high-level overview of all team operations.</div>
+                    <div class="card-footer">Assign Owners</div>
+                </div>
+                <div class="card card-2" data-card-index="1" style="z-index: 3;">
+                    <div class="card-header">Workflow Setup</div>
+                    <div class="card-body">Visualize your pipeline status with custom cards and flows.</div>
+                    <div class="card-footer">Set Deadlines</div>
+                </div>
+                <div class="card card-3" data-card-index="2" style="z-index: 2;">
+                    <div class="card-header">Task Allocation</div>
+                    <div class="card-body">Manage individual and team workloads seamlessly.</div>
+                    <div class="card-footer">Create Cards</div>
+                </div>
+                <div class="card card-4" data-card-index="3" style="z-index: 1;">
+                    <div class="card-header">Progress Tracker</div>
+                    <div class="card-body">Monitor real-time status updates across all projects.</div>
+                    <div class="card-footer">Review Milestones</div>
+                </div>
+            </div>
+            
+            <div class="text-overlay text-bottom" data-text-index="1">CREATE CARDS, SET DEADLINES, ASSIGN OWNERS.</div>
+        </div>
+    </main>
+
+    <section class="final-content">
+        <h2>Work beyond limits. Define your workflow.</h2>
+        <p>A new era of productivity starts now.</p>
+    </section>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        const cardsWrapper = document.querySelector(".cards-wrapper");
+        const cards = gsap.utils.toArray(".card");
+        const numCards = cards.length;
+
+        // 1. Create a master timeline linked to the scroll
+        let tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: ".sticky-container",
+                pin: cardsWrapper, 
+                start: "top top",
+                end: "bottom top", 
+                scrub: 1, // Smoothly link animation to scroll
+            }
+        });
+
+        // 2. Animate the cards sequentially
+        cards.forEach((card, index) => {
+            const staggerDuration = 1.5; // Controls the scroll distance for each card reveal
+            const delay = index * staggerDuration;
+            
+            // --- Phase 1: Reveal the Card (Scale, Position, and Flatten 3D) ---
+            tl.to(card, {
+                opacity: 1, 
+                scale: 1, 
+                y: 0, 
+                rotationX: 0, 
+                rotationY: 0, 
+                duration: staggerDuration,
+                ease: "power2.out",
+            }, delay); 
+
+            // --- Phase 2: Shift the Card into its Stacked Position (Parallax) ---
+            // This creates the layered 3D effect seen when the next card appears
+            if (index < numCards - 1) {
+                tl.to(card, {
+                    z: -(index + 1) * 20, // Move back in Z-space
+                    x: (index + 1) * 15, // Shift right
+                    y: (index + 1) * -15, // Shift up
+                    rotationZ: (index + 1) * 1, // Slight rotation
+                    scale: 0.98, // Shrink slightly
+                    duration: staggerDuration,
+                    ease: "power1.inOut",
+                }, delay + (staggerDuration / 2)); 
+            }
+        });
+
+        // 3. Animate the final card stack out of view 
+        tl.to(cardsWrapper, {
+            y: -200, 
+            opacity: 0, 
+            duration: 1.5,
+            ease: "power1.in",
+        }, `end-=${1.5}`); 
+    </script>
+</body>
+</html>

@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HopeLink Mahama - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Professional navigation styles */
+        .nav-professional {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        .nav-scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .nav-item {
+            position: relative;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 50%;
+            background: linear-gradient(90deg, #3B82F6, #10B981);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        .nav-item:hover::after {
+            width: 100%;
+        }
+        
+        /* User dropdown styles */
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            min-width: 220px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 0.75rem;
+            padding: 0.75rem 0;
+            z-index: 100;
+            animation: slideDown 0.2s ease-out;
+        }
+        .user-dropdown.active {
+            display: block;
+        }
+        .user-dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #374151;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .user-dropdown-item:hover {
+            background-color: #f3f4f6;
+            color: #3B82F6;
+        }
+        .user-dropdown-divider {
+            height: 1px;
+            background-color: #e5e7eb;
+            margin: 0.5rem 0;
+        }
+        
+        /* Dashboard styles */
+        .dashboard-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+        }
+        
+        /* Profile styles */
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+        }
+        .avatar-upload {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #3B82F6;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .avatar-upload:hover {
+            background: #2563EB;
+            transform: scale(1.1);
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        /* Form styles */
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            color: white;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .notification.success {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+        .notification.error {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+        }
+        
+        /* Loading spinner */
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Animations */
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
+                font-size: 36px;
+            }
+            .dashboard-card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50">
+    <!-- Notification System -->
+    <div id="notification" class="notification">
+        <div class="flex items-center space-x-3">
+            <i id="notificationIcon" class="fas fa-check-circle"></i>
+            <span id="notificationMessage">Action completed successfully!</span>
+            <button onclick="hideNotification()" class="ml-4 opacity-70 hover:opacity-100">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation with user profile -->
+    <nav class="nav-professional shadow-lg fixed w-full z-50 transition-all duration-300" id="mainNav">
+        <div class="max-w-full mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo Section -->
+                <div class="flex items-center flex-shrink-0">
+                    <div class="flex items-center">
+                        <div class="bg-gradient-to-r from-blue-500 to-green-500 p-2 rounded-lg mr-3">
+                            <i class="fas fa-hands-helping text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-xl font-bold text-gray-800">HopeLink</div>
+                            <div class="text-xs text-green-500 font-semibold">Mahama Refugee Camp</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="desktop-nav hidden lg:flex items-center flex-1 justify-center">
+                    <div class="flex items-center space-x-6">
+                        <a href="index.html" class="nav-item text-primary-blue font-semibold">Home</a>
+                        <a href="programs.html" class="nav-item text-gray-600 hover:text-primary-blue transition">Programs</a>
+                        <a href="about-us.html" class="nav-item text-gray-600 hover:text-primary-blue transition">About Us</a>
+                        <a href="get-involved.html" class="nav-item text-gray-600 hover:text-primary-blue transition">Get Involved</a>
+                        <a href="contact.html" class="nav-item text-gray-600 hover:text-primary-blue transition">Contact</a>
+                    </div>
+                </div>
+
+                <!-- User Profile Section (Replaces Login/Signup when logged in) -->
+                <div id="authSection" class="desktop-nav hidden lg:flex items-center space-x-3 flex-shrink-0">
+                    <!-- This will be dynamically populated by JavaScript -->
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuButton" class="lg:hidden text-gray-600 hover:text-primary-blue transition">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="mobile-menu lg:hidden hidden">
+                <div class="px-4 py-2 space-y-3">
+                    <a href="index.html" class="block py-2 text-primary-blue font-semibold">Home</a>
+                    <a href="programs.html" class="block py-2 text-gray-600 hover:text-primary-blue transition">Programs</a>
+                    <a href="about-us.html" class="block py-2 text-gray-600 hover:text-primary-blue transition">About Us</a>
+                    <a href="get-involved.html" class="block py-2 text-gray-600 hover:text-primary-blue transition">Get Involved</a>
+                    <a href="contact.html" class="block py-2 text-gray-600 hover:text-primary-blue transition">Contact</a>
+                    
+                    <!-- Mobile Auth Section -->
+                    <div id="mobileAuthSection" class="pt-4 border-t border-gray-200">
+                        <!-- This will be dynamically populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Content -->
+    <div class="pt-24 pb-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <!-- Welcome Section -->
+            <div class="mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2" id="welcomeTitle">Welcome back!</h1>
+                <p class="text-gray-600" id="welcomeMessage">Manage your account and stay updated with HopeLink activities.</p>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Left Column: Profile Information -->
+                <div class="lg:col-span-2">
+                    <div class="dashboard-card">
+                        <div class="flex items-center space-x-4 mb-6">
+                            <div class="relative">
+                                <div class="profile-avatar" id="userAvatar">
+                                    <!-- Avatar will be dynamically loaded -->
+                                </div>
+                                <div class="avatar-upload" onclick="openModal('avatarModal')">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800" id="userFullName">Loading...</h2>
+                                <p class="text-gray-600" id="userEmail">Loading...</p>
+                                <div class="flex items-center space-x-2 mt-2">
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium" id="userRole">Loading...</span>
+                                    <span class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-sm font-medium" id="userStatus">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile Stats -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <div class="text-2xl font-bold text-primary-blue" id="joinedDays">0</div>
+                                <div class="text-sm text-gray-600">Days with us</div>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <div class="text-2xl font-bold text-primary-green" id="activitiesCount">0</div>
+                                <div class="text-sm text-gray-600">Activities</div>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <div class="text-2xl font-bold text-primary-yellow" id="programsCount">0</div>
+                                <div class="text-sm text-gray-600">Programs</div>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <div class="text-2xl font-bold text-purple-600" id="contributionsCount">0</div>
+                                <div class="text-sm text-gray-600">Contributions</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <button onclick="openModal('editProfileModal')" class="p-3 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition flex flex-col items-center">
+                                    <i class="fas fa-user-edit text-xl mb-2"></i>
+                                    <span class="text-sm font-medium">Edit Profile</span>
+                                </button>
+                                <button onclick="openModal('changePasswordModal')" class="p-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition flex flex-col items-center">
+                                    <i class="fas fa-key text-xl mb-2"></i>
+                                    <span class="text-sm font-medium">Change Password</span>
+                                </button>
+                                <button onclick="openModal('notificationSettingsModal')" class="p-3 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-100 transition flex flex-col items-center">
+                                    <i class="fas fa-bell text-xl mb-2"></i>
+                                    <span class="text-sm font-medium">Notifications</span>
+                                </button>
+                                <button onclick="openModal('privacyModal')" class="p-3 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition flex flex-col items-center">
+                                    <i class="fas fa-shield-alt text-xl mb-2"></i>
+                                    <span class="text-sm font-medium">Privacy</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activities -->
+                    <div class="dashboard-card mt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Recent Activities</h3>
+                            <button onclick="viewAllActivities()" class="text-primary-blue hover:text-blue-600 text-sm font-medium">
+                                View All
+                            </button>
+                        </div>
+                        <div class="space-y-4" id="recentActivities">
+                            <!-- Activities will be loaded dynamically -->
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-history text-4xl mb-3 opacity-50"></i>
+                                <p>No recent activities</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Account Management -->
+                <div class="space-y-6">
+                    <!-- Account Status -->
+                    <div class="dashboard-card">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Account Status</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Email Verification</span>
+                                <span class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-sm font-medium" id="emailVerified">Verified</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Profile Completion</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                        <div class="h-full bg-green-500" id="profileProgressBar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium" id="profileProgress">0%</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Account Type</span>
+                                <span class="text-sm font-medium" id="accountType">Standard</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Last Login</span>
+                                <span class="text-sm font-medium" id="lastLoginTime">Just now</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Your Programs -->
+                    <div class="dashboard-card">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Your Programs</h3>
+                        <div class="space-y-3" id="userPrograms">
+                            <!-- Programs will be loaded dynamically -->
+                            <div class="text-center py-6 text-gray-500">
+                                <i class="fas fa-project-diagram text-3xl mb-2 opacity-50"></i>
+                                <p class="text-sm">No active programs</p>
+                            </div>
+                        </div>
+                        <button onclick="browsePrograms()" class="w-full mt-4 p-3 bg-primary-blue text-white rounded-lg hover:bg-blue-600 transition font-medium">
+                            <i class="fas fa-plus mr-2"></i>Browse Programs
+                        </button>
+                    </div>
+                    
+                    <!-- Quick Links -->
+                    <div class="dashboard-card">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Links</h3>
+                        <div class="space-y-2">
+                            <a href="programs.html" class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-hands-helping text-primary-blue"></i>
+                                    <span>Programs Directory</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </a>
+                            <a href="resources.html" class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-book text-primary-green"></i>
+                                    <span>Resources</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </a>
+                            <a href="support.html" class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-headset text-primary-yellow"></i>
+                                    <span>Support Center</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </a>
+                            <a href="settings.html" class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-cog text-purple-600"></i>
+                                    <span>Account Settings</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Announcements -->
+            <div class="dashboard-card">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Latest Announcements</h3>
+                <div class="space-y-4" id="announcements">
+                    <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium text-blue-800">New Youth Empowerment Workshop</span>
+                            <span class="text-sm text-gray-500">2 days ago</span>
+                        </div>
+                        <p class="text-gray-600 text-sm">Join our digital skills workshop starting next week. Register now to secure your spot.</p>
+                    </div>
+                    <div class="p-4 bg-green-50 border-l-4 border-green-500 rounded-r">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium text-green-800">Food Distribution Schedule</span>
+                            <span class="text-sm text-gray-500">5 days ago</span>
+                        </div>
+                        <p class="text-gray-600 text-sm">Updated food distribution schedule for Mahama Camp. Check your eligibility.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Edit Profile</h3>
+                <button onclick="closeModal('editProfileModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="editProfileForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label">First Name</label>
+                        <input type="text" id="editFirstName" class="form-input" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Last Name</label>
+                        <input type="text" id="editLastName" class="form-input" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="editEmail" class="form-input" required disabled>
+                </div>
+                
+                <div>
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" id="editPhone" class="form-input" placeholder="+250 123 456 789">
+                </div>
+                
+                <div>
+                    <label class="form-label">Address</label>
+                    <input type="text" id="editAddress" class="form-input" placeholder="Mahama Camp, Kirehe District">
+                </div>
+                
+                <div>
+                    <label class="form-label">Bio</label>
+                    <textarea id="editBio" rows="3" class="form-input" placeholder="Tell us about yourself..."></textarea>
+                </div>
+                
+                <div id="editProfileError" class="hidden bg-red-50 text-red-700 p-3 rounded-lg text-sm"></div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('editProfileModal')" class="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-3 bg-primary-blue text-white rounded-lg hover:bg-blue-600 transition font-medium">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Change Password</h3>
+                <button onclick="closeModal('changePasswordModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="changePasswordForm" class="space-y-4">
+                <div>
+                    <label class="form-label">Current Password</label>
+                    <input type="password" id="currentPassword" class="form-input" required>
+                </div>
+                
+                <div>
+                    <label class="form-label">New Password</label>
+                    <input type="password" id="newPassword" class="form-input" required>
+                </div>
+                
+                <div>
+                    <label class="form-label">Confirm New Password</label>
+                    <input type="password" id="confirmNewPassword" class="form-input" required>
+                </div>
+                
+                <div class="text-sm text-gray-600">
+                    <p class="font-medium mb-1">Password requirements:</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>At least 8 characters</li>
+                        <li>Contains uppercase and lowercase letters</li>
+                        <li>Contains at least one number</li>
+                        <li>Contains at least one special character</li>
+                    </ul>
+                </div>
+                
+                <div id="changePasswordError" class="hidden bg-red-50 text-red-700 p-3 rounded-lg text-sm"></div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('changePasswordModal')" class="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-3 bg-primary-green text-white rounded-lg hover:bg-green-600 transition font-medium">
+                        Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Avatar Upload Modal -->
+    <div id="avatarModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Update Profile Picture</h3>
+                <button onclick="closeModal('avatarModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="text-center mb-6">
+                <div class="profile-avatar mx-auto mb-4" id="previewAvatar">
+                    <!-- Preview will be shown here -->
+                </div>
+                <p class="text-gray-600 text-sm mb-4">Upload a new profile picture (JPG, PNG, GIF, max 5MB)</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-blue transition cursor-pointer" onclick="document.getElementById('avatarFile').click()">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                    <p class="text-gray-600 font-medium">Click to upload</p>
+                    <p class="text-gray-500 text-sm">or drag and drop</p>
+                </div>
+                <input type="file" id="avatarFile" class="hidden" accept="image/*">
+                
+                <div class="grid grid-cols-4 gap-3" id="defaultAvatars">
+                    <!-- Default avatars will be populated dynamically -->
+                </div>
+                
+                <div id="avatarError" class="hidden bg-red-50 text-red-700 p-3 rounded-lg text-sm"></div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('avatarModal')" class="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                        Cancel
+                    </button>
+                    <button onclick="saveAvatar()" class="flex-1 py-3 bg-primary-blue text-white rounded-lg hover:bg-blue-600 transition font-medium">
+                        Save Picture
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Settings Modal -->
+    <div id="notificationSettingsModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Notification Settings</h3>
+                <button onclick="closeModal('notificationSettingsModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="notificationSettingsForm" class="space-y-6">
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-3">Email Notifications</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-envelope text-blue-500"></i>
+                                <span>Program updates</span>
+                            </div>
+                            <input type="checkbox" class="toggle" checked>
+                        </label>
+                        <label class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-newspaper text-green-500"></i>
+                                <span>News & announcements</span>
+                            </div>
+                            <input type="checkbox" class="toggle" checked>
+                        </label>
+                        <label class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-bell text-yellow-500"></i>
+                                <span>Reminders</span>
+                            </div>
+                            <input type="checkbox" class="toggle" checked>
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-3">Push Notifications</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-calendar-alt text-purple-500"></i>
+                                <span>Event reminders</span>
+                            </div>
+                            <input type="checkbox" class="toggle">
+                        </label>
+                        <label class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-comments text-pink-500"></i>
+                                <span>Messages</span>
+                            </div>
+                            <input type="checkbox" class="toggle" checked>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('notificationSettingsModal')" class="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-3 bg-primary-blue text-white rounded-lg hover:bg-blue-600 transition font-medium">
+                        Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Privacy Settings Modal -->
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Privacy Settings</h3>
+                <button onclick="closeModal('privacyModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="privacySettingsForm" class="space-y-6">
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-3">Profile Visibility</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="profileVisibility" value="public" class="text-blue-500">
+                            <span>Public - Everyone can see your profile</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="profileVisibility" value="community" class="text-blue-500" checked>
+                            <span>Community - Only HopeLink members can see your profile</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="radio" name="profileVisibility" value="private" class="text-blue-500">
+                            <span>Private - Only you can see your profile</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-3">Data Sharing</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-chart-line text-blue-500"></i>
+                                <span>Share usage data for improvement</span>
+                            </div>
+                            <input type="checkbox" class="toggle">
+                        </label>
+                        <label class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-users text-green-500"></i>
+                                <span>Allow community recommendations</span>
+                            </div>
+                            <input type="checkbox" class="toggle" checked>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('privacyModal')" class="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-3 bg-primary-blue text-white rounded-lg hover:bg-blue-600 transition font-medium">
+                        Save Privacy Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div id="deleteAccountModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Delete Account</h3>
+                <button onclick="closeModal('deleteAccountModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                </div>
+                <h4 class="text-lg font-semibold text-gray-800 mb-2">Are you absolutely sure?</h4>
+                <p class="text-gray-600 mb-4">This action cannot be undone. This will permanently delete your account and remove all your data from our servers.</p>
+            </div>
+            
+            <form id="deleteAccountForm" class="space-y-4">
+                <div>
+                    <label class="form-label">Enter your password to confirm</label>
+                    <input type="password" id="deleteConfirmPassword" class="form-input" required>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <input type="checkbox" id="deleteConfirmCheckbox" required class="mt-1">
+                    <label for="deleteConfirmCheckbox" class="text-sm text-gray-600">
+                        I understand that this action is permanent and cannot be reversed.
+                    </label>
+                </div>
+                
+                <div id="deleteAccountError" class="hidden bg-red-50 text-red-700 p-3 rounded-lg text-sm"></div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('deleteAccountModal')" class="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">
+                        Delete Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // USER SESSION MANAGEMENT
+        // ============================================================================
+
+        let currentUser = null;
+
+        // Check if user is logged in
+        function checkUserSession() {
+            const userData = sessionStorage.getItem('currentUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                updateUIForLoggedInUser();
+                loadUserDashboard();
+            } else {
+                updateUIForLoggedOutUser();
+                redirectToLogin();
+            }
+        }
+
+        // Update navigation for logged in user
+        function updateUIForLoggedInUser() {
+            const authSection = document.getElementById('authSection');
+            const mobileAuthSection = document.getElementById('mobileAuthSection');
+            
+            if (currentUser) {
+                // Desktop navigation
+                authSection.innerHTML = `
+                    <div class="relative" id="userDropdownContainer">
+                        <button id="userDropdownButton" class="flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-green-500 flex items-center justify-center text-white font-medium">
+                                ${currentUser.firstName?.[0] || 'U'}${currentUser.lastName?.[0] || ''}
+                            </div>
+                            <div class="text-left hidden md:block">
+                                <div class="text-sm font-medium">${currentUser.fullName || 'User'}</div>
+                                <div class="text-xs text-gray-500">${currentUser.role || 'Member'}</div>
+                            </div>
+                            <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <div class="px-4 py-3 border-b border-gray-100">
+                                <div class="font-medium">${currentUser.fullName || 'User'}</div>
+                                <div class="text-sm text-gray-500">${currentUser.email || ''}</div>
+                            </div>
+                            <a href="#" class="user-dropdown-item" onclick="openModal('editProfileModal')">
+                                <i class="fas fa-user-edit mr-3"></i>
+                                <span>Edit Profile</span>
+                            </a>
+                            <a href="#" class="user-dropdown-item" onclick="openModal('changePasswordModal')">
+                                <i class="fas fa-key mr-3"></i>
+                                <span>Change Password</span>
+                            </a>
+                            <a href="#" class="user-dropdown-item">
+                                <i class="fas fa-cog mr-3"></i>
+                                <span>Settings</span>
+                            </a>
+                            <div class="user-dropdown-divider"></div>
+                            <a href="#" class="user-dropdown-item" onclick="handleLogout()">
+                                <i class="fas fa-sign-out-alt mr-3"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                // Mobile navigation
+                mobileAuthSection.innerHTML = `
+                    <div class="p-3 bg-gray-50 rounded-lg mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-green-500 flex items-center justify-center text-white font-medium text-lg">
+                                ${currentUser.firstName?.[0] || 'U'}${currentUser.lastName?.[0] || ''}
+                            </div>
+                            <div>
+                                <div class="font-medium">${currentUser.fullName || 'User'}</div>
+                                <div class="text-sm text-gray-500">${currentUser.role || 'Member'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <a href="#" onclick="openModal('editProfileModal')" class="block py-2 px-3 text-gray-600 hover:text-primary-blue transition flex items-center space-x-3">
+                            <i class="fas fa-user-edit"></i>
+                            <span>Edit Profile</span>
+                        </a>
+                        <a href="#" onclick="openModal('changePasswordModal')" class="block py-2 px-3 text-gray-600 hover:text-primary-blue transition flex items-center space-x-3">
+                            <i class="fas fa-key"></i>
+                            <span>Change Password</span>
+                        </a>
+                        <a href="#" class="block py-2 px-3 text-gray-600 hover:text-primary-blue transition flex items-center space-x-3">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <div class="border-t border-gray-200 pt-2">
+                            <button onclick="handleLogout()" class="w-full py-2 px-3 text-red-600 hover:text-red-700 transition flex items-center space-x-3">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Initialize dropdown
+                document.getElementById('userDropdownButton').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    document.getElementById('userDropdown').classList.toggle('active');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    const dropdown = document.getElementById('userDropdown');
+                    const button = document.getElementById('userDropdownButton');
+                    if (dropdown && !dropdown.contains(e.target) && !button.contains(e.target)) {
+                        dropdown.classList.remove('active');
+                    }
+                });
+                
+            } else {
+                // Show login/signup buttons if not logged in
+                authSection.innerHTML = `
+                    <a href="login.html" class="px-4 py-2 border-2 border-blue-500 text-blue-500 rounded-lg font-semibold hover:bg-blue-500 hover:text-white transition flex items-center space-x-2">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </a>
+                    <a href="signup.html" class="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition flex items-center space-x-2">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Sign Up</span>
+                    </a>
+                `;
+                
+                mobileAuthSection.innerHTML = `
+                    <div class="flex flex-col space-y-2 pt-4">
+                        <a href="login.html" class="px-4 py-2 border-2 border-blue-500 text-blue-500 rounded-lg font-semibold hover:bg-blue-500 hover:text-white transition text-center">
+                            Login
+                        </a>
+                        <a href="signup.html" class="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition text-center">
+                            Sign Up
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        // Update UI for logged out user
+        function updateUIForLoggedOutUser() {
+            updateUIForLoggedInUser(); // This will show login/signup buttons since currentUser is null
+        }
+
+        // Redirect to login if not logged in
+        function redirectToLogin() {
+            // Only redirect if not on login/signup pages
+            if (!window.location.href.includes('login.html') && !window.location.href.includes('signup.html')) {
+                // Show a message first
+                showNotification('Please login to access your dashboard', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }
+        }
+
+        // Load user dashboard data
+        function loadUserDashboard() {
+            if (!currentUser) return;
+            
+            // Update welcome message
+            document.getElementById('welcomeTitle').textContent = `Welcome back, ${currentUser.firstName || 'User'}!`;
+            document.getElementById('welcomeMessage').textContent = `Your last login was ${formatDate(currentUser.lastLogin)}`;
+            
+            // Update user info
+            document.getElementById('userFullName').textContent = currentUser.fullName || 'User';
+            document.getElementById('userEmail').textContent = currentUser.email || 'No email';
+            document.getElementById('userRole').textContent = currentUser.role || 'Member';
+            document.getElementById('userStatus').textContent = currentUser.status || 'Active';
+            
+            // Update avatar
+            const avatar = document.getElementById('userAvatar');
+            if (currentUser.photoURL) {
+                avatar.innerHTML = `<img src="${currentUser.photoURL}" alt="${currentUser.fullName}" class="w-full h-full rounded-full object-cover">`;
+            } else {
+                const initials = (currentUser.firstName?.[0] || 'U') + (currentUser.lastName?.[0] || '');
+                avatar.innerHTML = `<span>${initials}</span>`;
+                avatar.style.background = `linear-gradient(135deg, #${Math.random().toString(16).substr(2, 6)}, #${Math.random().toString(16).substr(2, 6)})`;
+            }
+            
+            // Calculate days since joining
+            if (currentUser.joinDate) {
+                const joinDate = new Date(currentUser.joinDate);
+                const today = new Date();
+                const diffTime = Math.abs(today - joinDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                document.getElementById('joinedDays').textContent = diffDays;
+            }
+            
+            // Update profile completion
+            updateProfileCompletion();
+            
+            // Load recent activities
+            loadRecentActivities();
+            
+            // Load user programs
+            loadUserPrograms();
+            
+            // Populate edit form
+            populateEditForm();
+            
+            // Load default avatars
+            loadDefaultAvatars();
+        }
+
+        // Update profile completion percentage
+        function updateProfileCompletion() {
+            let completion = 0;
+            if (currentUser.firstName && currentUser.lastName) completion += 30;
+            if (currentUser.email) completion += 20;
+            if (currentUser.phoneNumber) completion += 20;
+            if (currentUser.address) completion += 15;
+            if (currentUser.bio) completion += 15;
+            
+            document.getElementById('profileProgressBar').style.width = `${completion}%`;
+            document.getElementById('profileProgress').textContent = `${completion}%`;
+        }
+
+        // Load recent activities
+        function loadRecentActivities() {
+            const activities = [
+                { icon: 'fa-user-check', color: 'text-green-500', bg: 'bg-green-100', text: 'Profile updated successfully', time: '2 hours ago' },
+                { icon: 'fa-calendar', color: 'text-blue-500', bg: 'bg-blue-100', text: 'Registered for Youth Empowerment workshop', time: '1 day ago' },
+                { icon: 'fa-download', color: 'text-purple-500', bg: 'bg-purple-100', text: 'Downloaded program resources', time: '3 days ago' },
+                { icon: 'fa-comment', color: 'text-yellow-500', bg: 'bg-yellow-100', text: 'Posted a comment in community forum', time: '1 week ago' }
+            ];
+            
+            const container = document.getElementById('recentActivities');
+            container.innerHTML = activities.map(activity => `
+                <div class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg transition">
+                    <div class="${activity.bg} ${activity.color} w-10 h-10 rounded-full flex items-center justify-center">
+                        <i class="fas ${activity.icon}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium">${activity.text}</div>
+                        <div class="text-sm text-gray-500">${activity.time}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Update activities count
+            document.getElementById('activitiesCount').textContent = activities.length;
+        }
+
+        // Load user programs
+        function loadUserPrograms() {
+            const programs = [
+                { name: 'Digital Skills Training', progress: 65, color: 'bg-blue-500' },
+                { name: 'Community Gardening', progress: 40, color: 'bg-green-500' },
+                { name: 'Mental Wellness Support', progress: 20, color: 'bg-yellow-500' }
+            ];
+            
+            const container = document.getElementById('userPrograms');
+            if (programs.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-gray-500">
+                        <i class="fas fa-project-diagram text-3xl mb-2 opacity-50"></i>
+                        <p class="text-sm">No active programs</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = programs.map(program => `
+                    <div class="p-3 border border-gray-200 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="font-medium">${program.name}</div>
+                            <div class="text-sm font-semibold">${program.progress}%</div>
+                        </div>
+                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="h-full ${program.color} rounded-full" style="width: ${program.progress}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Update programs count
+            document.getElementById('programsCount').textContent = programs.length;
+        }
+
+        // Populate edit form with current data
+        function populateEditForm() {
+            if (!currentUser) return;
+            
+            document.getElementById('editFirstName').value = currentUser.firstName || '';
+            document.getElementById('editLastName').value = currentUser.lastName || '';
+            document.getElementById('editEmail').value = currentUser.email || '';
+            document.getElementById('editPhone').value = currentUser.phoneNumber || '';
+            document.getElementById('editAddress').value = currentUser.address || '';
+            document.getElementById('editBio').value = currentUser.bio || '';
+        }
+
+        // Load default avatars
+        function loadDefaultAvatars() {
+            const colors = [
+                'bg-gradient-to-r from-blue-400 to-blue-600',
+                'bg-gradient-to-r from-green-400 to-green-600',
+                'bg-gradient-to-r from-yellow-400 to-yellow-600',
+                'bg-gradient-to-r from-purple-400 to-purple-600',
+                'bg-gradient-to-r from-pink-400 to-pink-600',
+                'bg-gradient-to-r from-red-400 to-red-600'
+            ];
+            
+            const container = document.getElementById('defaultAvatars');
+            container.innerHTML = colors.map(color => `
+                <div class="w-16 h-16 rounded-full ${color} flex items-center justify-center text-white font-bold text-xl cursor-pointer hover:opacity-80 transition" onclick="selectDefaultAvatar('${color}')">
+                    ${currentUser.firstName?.[0] || 'U'}${currentUser.lastName?.[0] || ''}
+                </div>
+            `).join('');
+        }
+
+        // ============================================================================
+        // FORM HANDLERS
+        // ============================================================================
+
+        // Edit profile form handler
+        document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const updatedUser = {
+                ...currentUser,
+                firstName: document.getElementById('editFirstName').value,
+                lastName: document.getElementById('editLastName').value,
+                phoneNumber: document.getElementById('editPhone').value,
+                address: document.getElementById('editAddress').value,
+                bio: document.getElementById('editBio').value,
+                fullName: `${document.getElementById('editFirstName').value} ${document.getElementById('editLastName').value}`
+            };
+            
+            try {
+                // Update in localStorage
+                const users = JSON.parse(localStorage.getItem('hopelink_users') || '[]');
+                const index = users.findIndex(u => u.uid === currentUser.uid);
+                if (index !== -1) {
+                    users[index] = updatedUser;
+                    localStorage.setItem('hopelink_users', JSON.stringify(users));
+                    
+                    // Update session
+                    sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                    currentUser = updatedUser;
+                    
+                    // Update UI
+                    loadUserDashboard();
+                    closeModal('editProfileModal');
+                    showNotification('Profile updated successfully!', 'success');
+                }
+            } catch (error) {
+                showError('editProfileError', 'Failed to update profile. Please try again.');
+            }
+        });
+
+        // Change password form handler
+        document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            
+            // Validation
+            if (newPassword !== confirmPassword) {
+                showError('changePasswordError', 'New passwords do not match.');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showError('changePasswordError', 'Password must be at least 8 characters long.');
+                return;
+            }
+            
+            // Check current password (in real app, this would be verified server-side)
+            if (currentPassword !== currentUser.password) {
+                showError('changePasswordError', 'Current password is incorrect.');
+                return;
+            }
+            
+            try {
+                // Update password in localStorage
+                const users = JSON.parse(localStorage.getItem('hopelink_users') || '[]');
+                const index = users.findIndex(u => u.uid === currentUser.uid);
+                if (index !== -1) {
+                    users[index].password = newPassword;
+                    localStorage.setItem('hopelink_users', JSON.stringify(users));
+                    
+                    // Update current user
+                    currentUser.password = newPassword;
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    closeModal('changePasswordModal');
+                    document.getElementById('changePasswordForm').reset();
+                    showNotification('Password changed successfully!', 'success');
+                }
+            } catch (error) {
+                showError('changePasswordError', 'Failed to change password. Please try again.');
+            }
+        });
+
+        // Avatar handling
+        let selectedAvatar = null;
+
+        function selectDefaultAvatar(color) {
+            selectedAvatar = color;
+            const preview = document.getElementById('previewAvatar');
+            const initials = (currentUser.firstName?.[0] || 'U') + (currentUser.lastName?.[0] || '');
+            preview.innerHTML = `<div class="w-full h-full ${color} rounded-full flex items-center justify-center text-white font-bold text-3xl">${initials}</div>`;
+        }
+
+        // Handle file upload
+        document.getElementById('avatarFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.match('image.*')) {
+                showError('avatarError', 'Please select an image file.');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                showError('avatarError', 'File size must be less than 5MB.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedAvatar = e.target.result;
+                const preview = document.getElementById('previewAvatar');
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="w-full h-full rounded-full object-cover">`;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Save avatar
+        function saveAvatar() {
+            if (!selectedAvatar) {
+                showError('avatarError', 'Please select or upload an avatar.');
+                return;
+            }
+            
+            try {
+                // Update user in localStorage
+                const users = JSON.parse(localStorage.getItem('hopelink_users') || '[]');
+                const index = users.findIndex(u => u.uid === currentUser.uid);
+                if (index !== -1) {
+                    users[index].photoURL = selectedAvatar;
+                    localStorage.setItem('hopelink_users', JSON.stringify(users));
+                    
+                    // Update session
+                    currentUser.photoURL = selectedAvatar;
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Update UI
+                    loadUserDashboard();
+                    closeModal('avatarModal');
+                    showNotification('Profile picture updated!', 'success');
+                }
+            } catch (error) {
+                showError('avatarError', 'Failed to update avatar. Please try again.');
+            }
+        }
+
+        // Delete account
+        document.getElementById('deleteAccountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const password = document.getElementById('deleteConfirmPassword').value;
+            const confirmed = document.getElementById('deleteConfirmCheckbox').checked;
+            
+            if (!confirmed) {
+                showError('deleteAccountError', 'Please confirm account deletion.');
+                return;
+            }
+            
+            if (password !== currentUser.password) {
+                showError('deleteAccountError', 'Incorrect password.');
+                return;
+            }
+            
+            // Delete from localStorage
+            const users = JSON.parse(localStorage.getItem('hopelink_users') || '[]');
+            const filteredUsers = users.filter(u => u.uid !== currentUser.uid);
+            localStorage.setItem('hopelink_users', JSON.stringify(filteredUsers));
+            
+            // Clear session
+            sessionStorage.removeItem('currentUser');
+            currentUser = null;
+            
+            showNotification('Account deleted successfully.', 'info');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        });
+
+        // ============================================================================
+        // UTILITY FUNCTIONS
+        // ============================================================================
+
+        // Modal functions
+        window.openModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        window.closeModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        };
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Show error message
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.classList.remove('hidden');
+        }
+
+        // Hide error message
+        function hideError(elementId) {
+            const element = document.getElementById(elementId);
+            element.classList.add('hidden');
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+            const messageEl = document.getElementById('notificationMessage');
+            
+            notification.className = `notification ${type}`;
+            icon.className = type === 'success' ? 'fas fa-check-circle' :
+                           type === 'error' ? 'fas fa-exclamation-circle' :
+                           'fas fa-info-circle';
+            
+            messageEl.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                hideNotification();
+            }, 5000);
+        }
+
+        function hideNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.remove('show');
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return 'Never';
+            
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} minutes ago`;
+            if (diffHours < 24) return `${diffHours} hours ago`;
+            if (diffDays < 7) return `${diffDays} days ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        // Logout handler
+        function handleLogout() {
+            sessionStorage.removeItem('currentUser');
+            currentUser = null;
+            showNotification('Logged out successfully.', 'success');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        }
+
+        // Other functions
+        function viewAllActivities() {
+            showNotification('Loading all activities...', 'info');
+        }
+
+        function browsePrograms() {
+            window.location.href = 'programs.html';
+        }
+
+        // ============================================================================
+        // MOBILE MENU
+        // ============================================================================
+
+        document.getElementById('mobileMenuButton').addEventListener('click', function() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+            
+            const icon = this.querySelector('i');
+            if (menu.classList.contains('hidden')) {
+                icon.className = 'fas fa-bars text-xl';
+            } else {
+                icon.className = 'fas fa-times text-xl';
+            }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('mobileMenu');
+            const button = document.getElementById('mobileMenuButton');
+            
+            if (menu && !menu.classList.contains('hidden') && 
+                !menu.contains(e.target) && !button.contains(e.target)) {
+                menu.classList.add('hidden');
+                button.querySelector('i').className = 'fas fa-bars text-xl';
+            }
+        });
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkUserSession();
+            
+            // Load toggle styles
+            const styles = document.createElement('style');
+            styles.textContent = `
+                .toggle {
+                    position: relative;
+                    display: inline-block;
+                    width: 44px;
+                    height: 24px;
+                }
+                .toggle input {
+                    opacity: 0;
+                    width: 0;
+                    height: 0;
+                }
+                .toggle span {
+                    position: absolute;
+                    cursor: pointer;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: #d1d5db;
+                    transition: .4s;
+                    border-radius: 24px;
+                }
+                .toggle span:before {
+                    position: absolute;
+                    content: "";
+                    height: 16px;
+                    width: 16px;
+                    left: 4px;
+                    bottom: 4px;
+                    background-color: white;
+                    transition: .4s;
+                    border-radius: 50%;
+                }
+                .toggle input:checked + span {
+                    background-color: #3b82f6;
+                }
+                .toggle input:checked + span:before {
+                    transform: translateX(20px);
+                }
+            `;
+            document.head.appendChild(styles);
+        });
+    </script>
+</body>
+</html>
